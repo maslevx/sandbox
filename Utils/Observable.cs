@@ -12,7 +12,19 @@ namespace Utils
 
         public IDisposable Subscribe(IObserver<T> observer)
         {
-            throw new NotImplementedException();
+            if (m_observers.Contains(observer) == false)
+                m_observers.Add(observer);
+
+            return new Janitor(() =>
+            {
+                if (m_observers.Contains(observer)) 
+                    m_observers.Remove(observer);
+            });
+        }
+
+        protected void Publish(T item)
+        {
+            m_observers.ForEach(sub => sub.OnNext(item));
         }
     }
 }
